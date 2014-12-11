@@ -1,5 +1,5 @@
 /*************************************************************************
-    > File Name: kf-bus.c
+    > File Name: kf-kobject.c
     > Author: koffuxu
     > Mail: koffuxu@gmail.com 
     > Created Time: Mon 08 Dec 2014 04:16:41 PM CST
@@ -12,35 +12,32 @@
 #include <linux/stat.h>
 #include <linux/slab.h>
 #include <linux/kobject.h>
+#include <linux/slab.h>
 
-static int kf_bus_match(struct device *dev, struct device_driver *drv)
+static struct kobject *kfkobj;
+
+static int __init kf_kobject_init(void)
 {
 
+   printk(">>>kf_kobject_init !!\n");
+   kfkobj = kobject_create_and_add("kf-kobject",NULL);
+   if(!kfkobj){
+       kobject_del(kfkobj);
+       printk("kobject add fail!\n");
+   }
    return 0;
+
 }
 
-static struct bus_type kf_bus_type = {
 
-   .name = "kf-bus",
-   .match = kf_bus_match,
-};
-
-
-static int __init kf_bus_init(void)
+static void __exit kf_kobject_exit(void)
 {
 
-   printk(">>>kf_bus_init successed!!\n");
-   return bus_register(&kf_bus_type);
+    printk(">>>kf_kobject_exit !!\n");
+    kobject_del(kfkobj);
 }
-
-static void __exit kf_bus_exit(void)
-{
-
-    printk(">>>kf_bus_exit successed!!\n");
-    bus_unregister(&kf_bus_type);
-}
-module_init(kf_bus_init);
-module_exit(kf_bus_exit);
+module_init(kf_kobject_init);
+module_exit(kf_kobject_exit);
 
 MODULE_AUTHOR("Koffuxu");
 MODULE_LICENSE("GPL");
